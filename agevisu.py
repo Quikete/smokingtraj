@@ -237,6 +237,9 @@ if 'data' in locals():
         shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
         components.html(shap_html, height=height)
 
+    explainer = shap.KernelExplainer(ModelWrapper(model_fume), X_np)
+    shap_values = explainer.shap_values(X_np)
+
     # Streamlit
     st.title("Visualisation des SHAP values et des importances des caractéristiques pour 3 modèles")
 
