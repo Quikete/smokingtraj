@@ -15,8 +15,9 @@ import torchviz
 import psycopg2
 import numpy as np
 
-#Streamlit Secrets
-gdrive_url = st.secrets["gdrive_url"]["gdrive_url"]
+# Streamlit Secrets
+# gdrive_url = st.secrets["gdrive_url"]["gdrive_url"]
+gdrive_url = "https://drive.google.com/uc?export=download&id=1Tr_WozWNZ1WuXvL6scFAduj8mwPsUdHu"
 
 # CSV
 @st.cache_data
@@ -237,20 +238,16 @@ if 'data' in locals():
         shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
         components.html(shap_html, height=height)
 
-    explainer = shap.KernelExplainer(ModelWrapper(model_fume), X_np)
-    shap_values = explainer.shap_values(X_np)
-
-    # Streamlit
-    st.title("Visualisation des SHAP values et des importances des caractéristiques pour 3 modèles")
+    # Reduce the number of background samples to 100
+    background = shap.sample(X_np, 100)
 
     for model_name, model in models.items():
         st.subheader(f"SHAP Summary Plot pour {model_name}")
 
         model_wrapper = ModelWrapper(model)
 
-        background = X_np[np.random.choice(X_np.shape[0], 100, replace=False)]
         explainer = shap.KernelExplainer(model_wrapper, background)
-        shap_values = explainer.shap_values(X_np)
+        shap_values = explainer.shap_values(background)
 
         if isinstance(shap_values, list):
             shap_values = np.array(shap_values)
@@ -262,7 +259,7 @@ if 'data' in locals():
         st.write(f"X_np shape: {X_np.shape}")
 
         fig_summary, ax_summary = plt.subplots()
-        shap.summary_plot(shap_values, X_np, feature_names=columns_to_use, show=False)
+        shap.summary_plot(shap_values, background, feature_names=columns_to_use, show=False)
         st.pyplot(fig_summary)
 
         shap_values_mean = np.abs(shap_values).mean(axis=0)
@@ -274,31 +271,14 @@ if 'data' in locals():
 
         st.subheader(f"Graphique SHAP Force Plot interactif pour {model_name}")
         shap_values_sample = shap_values[:50]
-        force_plot = shap.force_plot(explainer.expected_value, shap_values_sample, X_np[:50], feature_names=columns_to_use)
+        force_plot = shap.force_plot(explainer.expected_value, shap_values_sample, background[:50], feature_names=columns_to_use)
         st_shap(force_plot, 400)
 
-        #if 'mere_pcs_6' in columns_to_use:
-            #feature_idx = columns_to_use.index('mere_pcs_6')
-            #fig_dependence, ax_dependence = plt.subplots()
-            #shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
-            #st.pyplot(fig_dependence)
-
-    # SHAP KEY VARIABLES
-    #mere_pcs_vars = [f'mere_pcs_{i}' for i in range(1, 7)]
-    #pere_pcs_vars = [f'pere_pcs_{i}' for i in range(1, 7)]
-    #mere_etude_vars = [f'mere_etude_{i}' for i in range(1, 7)]
-    #pere_etude_vars = [f'pere_etude_{i}' for i in range(1, 7)]
-
-    #all_vars = mere_pcs_vars + pere_pcs_vars + mere_etude_vars + pere_etude_vars
-
-    #for var in all_vars:
-        #if var in columns_to_use:
-            #feature_idx = columns_to_use.index(var)
-            #for model_name, model in models.items():
-                #st.subheader(f"SHAP Dependence Plot pour {model_name} - {var}")
-                #fig_dependence, ax_dependence = plt.subplots()
-                #shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
-                #st.pyplot(fig_dependence)
+        # if 'mere_pcs_6' in columns_to_use:
+        #     feature_idx = columns_to_use.index('mere_pcs_6')
+        #     fig_dependence, ax_dependence = plt.subplots()
+        #     shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
+        #     st.pyplot(fig_dependence)
 
     for model_name, model in models.items():
         st.subheader(f"Représentation graphique du modèle {model_name}")
