@@ -16,8 +16,8 @@ import psycopg2
 import numpy as np
 
 # Streamlit Secrets
-# gdrive_url = st.secrets["gdrive_url"]["gdrive_url"]
-gdrive_url = "https://drive.google.com/uc?export=download&id=1Tr_WozWNZ1WuXvL6scFAduj8mwPsUdHu"
+gdrive_url = st.secrets["gdrive_url"]["gdrive_url"]
+
 
 # CSV
 @st.cache_data
@@ -32,7 +32,7 @@ def load_csv_from_gdrive(_url):
 # Chargez les données uniquement si le bouton "Charger les données" est cliqué
 if st.button("Charger les données"):
     data = load_csv_from_gdrive(gdrive_url)
-    st.write(data.head())
+    #st.write(data.head())
 
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
