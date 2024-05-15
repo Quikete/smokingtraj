@@ -15,9 +15,8 @@ import torchviz
 import psycopg2
 import numpy as np
 
-# Streamlit Secrets
+#Streamlit Secrets
 gdrive_url = st.secrets["gdrive_url"]["gdrive_url"]
-
 
 # CSV
 @st.cache_data
@@ -30,9 +29,9 @@ def load_csv_from_gdrive(_url):
     return pd.read_csv(csv_file_path)
 
 # Chargez les données uniquement si le bouton "Charger les données" est cliqué
-if st.button("Lancer le code"):
+if st.button("Charger les données"):
     data = load_csv_from_gdrive(gdrive_url)
-    #st.write(data.head())
+    st.write(data.head())
 
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
@@ -238,7 +237,12 @@ if 'data' in locals():
         shap_html = f"<head>{shap.getjs()}</head><body>{plot.html()}</body>"
         components.html(shap_html, height=height)
 
-    # Reduce the number of background samples to 100
+    explainer = shap.KernelExplainer(ModelWrapper(model_fume), X_np)
+    shap_values = explainer.shap_values(X_np)
+
+    # Streamlit
+    st.title("Visualisation des SHAP values et des importances des caractéristiques pour 3 modèles")
+
     background = shap.sample(X_np, 100)
 
     for model_name, model in models.items():
@@ -247,7 +251,7 @@ if 'data' in locals():
         model_wrapper = ModelWrapper(model)
 
         explainer = shap.KernelExplainer(model_wrapper, background)
-        shap_values = explainer.shap_values(background)
+        shap_values = explainer.shap_values(X_np)
 
         if isinstance(shap_values, list):
             shap_values = np.array(shap_values)
@@ -259,7 +263,7 @@ if 'data' in locals():
         st.write(f"X_np shape: {X_np.shape}")
 
         fig_summary, ax_summary = plt.subplots()
-        shap.summary_plot(shap_values, background, feature_names=columns_to_use, show=False)
+        shap.summary_plot(shap_values, X_np, feature_names=columns_to_use, show=False)
         st.pyplot(fig_summary)
 
         shap_values_mean = np.abs(shap_values).mean(axis=0)
@@ -271,18 +275,35 @@ if 'data' in locals():
 
         st.subheader(f"Graphique SHAP Force Plot interactif pour {model_name}")
         shap_values_sample = shap_values[:50]
-        force_plot = shap.force_plot(explainer.expected_value, shap_values_sample, background[:50], feature_names=columns_to_use)
+        force_plot = shap.force_plot(explainer.expected_value, shap_values_sample, X_np[:50], feature_names=columns_to_use)
         st_shap(force_plot, 400)
 
-        # if 'mere_pcs_6' in columns_to_use:
-        #     feature_idx = columns_to_use.index('mere_pcs_6')
-        #     fig_dependence, ax_dependence = plt.subplots()
-        #     shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
-        #     st.pyplot(fig_dependence)
+        #if 'mere_pcs_6' in columns_to_use:
+            #feature_idx = columns_to_use.index('mere_pcs_6')
+            #fig_dependence, ax_dependence = plt.subplots()
+            #shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
+            #st.pyplot(fig_dependence)
 
-    #for model_name, model in models.items():
-        #st.subheader(f"Représentation graphique du modèle {model_name}")
-        #x = torch.randn(1, X.shape[1]).requires_grad_(True)
-        #y = model(x)
-        #dot = torchviz.make_dot(y, params=dict(model.named_parameters()))
-        #st.image(dot.render(f'model_graph_{model_name}', format='png'))
+    # SHAP KEY VARIABLES
+    #mere_pcs_vars = [f'mere_pcs_{i}' for i in range(1, 7)]
+    #pere_pcs_vars = [f'pere_pcs_{i}' for i in range(1, 7)]
+    #mere_etude_vars = [f'mere_etude_{i}' for i in range(1, 7)]
+    #pere_etude_vars = [f'pere_etude_{i}' for i in range(1, 7)]
+
+    #all_vars = mere_pcs_vars + pere_pcs_vars + mere_etude_vars + pere_etude_vars
+
+    #for var in all_vars:
+        #if var in columns_to_use:
+            #feature_idx = columns_to_use.index(var)
+            #for model_name, model in models.items():
+                #st.subheader(f"SHAP Dependence Plot pour {model_name} - {var}")
+                #fig_dependence, ax_dependence = plt.subplots()
+                #shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
+                #st.pyplot(fig_dependence)
+
+    for model_name, model in models.items():
+        st.subheader(f"Représentation graphique du modèle {model_name}")
+        x = torch.randn(1, X.shape[1]).requires_grad_(True)
+        y = model(x)
+        dot = torchviz.make_dot(y, params=dict(model.named_parameters()))
+        st.image(dot.render(f'model_graph_{model_name}', format='png'))
