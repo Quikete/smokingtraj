@@ -1,0 +1,11 @@
+pandas 
+numpy 
+torch
+scikit-learn
+shap
+matplotlib
+streamlit 
+torchviz
+sqlalchemy
+psycopg2-binary
+pymysql
