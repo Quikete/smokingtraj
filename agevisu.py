@@ -29,9 +29,9 @@ def load_csv_from_gdrive(_url):
     return pd.read_csv(csv_file_path)
 
 # Chargez les données uniquement si le bouton "Charger les données" est cliqué
-if st.button("Charger les données"):
+if st.button("Lancer le code"):
     data = load_csv_from_gdrive(gdrive_url)
-    st.write(data.head())
+    #st.write(data.head())
 
 # Interface Streamlit
 st.title("Origine sociale et parcours tabagiques, une approche via les réseaux de neurones")
