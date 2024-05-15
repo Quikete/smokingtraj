@@ -30,7 +30,7 @@ def load_csv_from_gdrive(_url):
     return pd.read_csv(csv_file_path)
 
 # Chargez les données uniquement si le bouton "Charger les données" est cliqué
-if st.button("Charger les données"):
+if st.button("Lancer le code"):
     data = load_csv_from_gdrive(gdrive_url)
     #st.write(data.head())
 
@@ -280,9 +280,9 @@ if 'data' in locals():
         #     shap.dependence_plot(feature_idx, shap_values, X_np, feature_names=columns_to_use, ax=ax_dependence, show=False)
         #     st.pyplot(fig_dependence)
 
-    for model_name, model in models.items():
-        st.subheader(f"Représentation graphique du modèle {model_name}")
-        x = torch.randn(1, X.shape[1]).requires_grad_(True)
-        y = model(x)
-        dot = torchviz.make_dot(y, params=dict(model.named_parameters()))
-        st.image(dot.render(f'model_graph_{model_name}', format='png'))
+    #for model_name, model in models.items():
+        #st.subheader(f"Représentation graphique du modèle {model_name}")
+        #x = torch.randn(1, X.shape[1]).requires_grad_(True)
+        #y = model(x)
+        #dot = torchviz.make_dot(y, params=dict(model.named_parameters()))
+        #st.image(dot.render(f'model_graph_{model_name}', format='png'))
