@@ -104,12 +104,12 @@ if 'data' in locals():
     train_dataset_age_init, test_dataset_age_init = split_dataset(dataset_age_init)
     train_dataset_age_cess, test_dataset_age_cess = split_dataset(dataset_age_cess)
 
-    train_loader_fume = DataLoader(train_dataset_fume, batch_size=60, shuffle=True)
-    test_loader_fume = DataLoader(test_dataset_fume, batch_size=60, shuffle=False)
-    train_loader_age_init = DataLoader(train_dataset_age_init, batch_size=60, shuffle=True)
-    test_loader_age_init = DataLoader(test_dataset_age_init, batch_size=60, shuffle=False)
-    train_loader_age_cess = DataLoader(train_dataset_age_cess, batch_size=60, shuffle=True)
-    test_loader_age_cess = DataLoader(test_dataset_age_cess, batch_size=60, shuffle=False)
+    train_loader_fume = DataLoader(train_dataset_fume, batch_size=40, shuffle=True)
+    test_loader_fume = DataLoader(test_dataset_fume, batch_size=40, shuffle=False)
+    train_loader_age_init = DataLoader(train_dataset_age_init, batch_size=40, shuffle=True)
+    test_loader_age_init = DataLoader(test_dataset_age_init, batch_size=40, shuffle=False)
+    train_loader_age_cess = DataLoader(train_dataset_age_cess, batch_size=40, shuffle=True)
+    test_loader_age_cess = DataLoader(test_dataset_age_cess, batch_size=40, shuffle=False)
 
     class NeuralNetwork(nn.Module):
         def __init__(self, input_size):
@@ -140,7 +140,7 @@ if 'data' in locals():
     loss_fn_fume = nn.BCEWithLogitsLoss()
     loss_fn_reg = nn.MSELoss()
 
-    def train_model(model, optimizer, loss_fn, train_loader, num_epochs=50):
+    def train_model(model, optimizer, loss_fn, train_loader, num_epochs=30):
         for epoch in range(num_epochs):
             model.train()
             for features, labels in train_loader:
